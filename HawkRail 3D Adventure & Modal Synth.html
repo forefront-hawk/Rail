@@ -1,0 +1,2581 @@
+<!DOCTYPE html>
+<html lang="en" data-device="desktop" data-theme="cyberpunk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>HawkRail 3D — Vehicle & Train Adventure + Modal Synth & CVTML Neon Deck</title>
+  <!--
+    Engineered with Forefront Hawk (forefronthawk.com) & Gemini Aargon
+    Serial Code: FH-GA-20261119-MFF-TXT-A0ACE403
+    Architecture: Single-file zero-dependency HTML5 Canvas 3D + WebAudio Modal Synth + 4-Posture Layout Engine
+  -->
+  <style>
+    /* =========================================================================
+       1. HAWKCHROMA MULTI-THEME ENGINE (CSS CUSTOM PROPERTIES)
+       ========================================================================= */
+    :root,
+    html[data-theme="cyberpunk"] {
+      --bg: #0b0e1d;
+      --bg-grad: radial-gradient(circle at 20% 0%, #1b1642 0%, #0b0e1d 65%);
+      --panel: #141933;
+      --panel-alt: #1c2347;
+      --accent: #ff2e93;
+      --accent2: #00f0ff;
+      --accent3: #ffd166;
+      --text: #f3f6ff;
+      --muted: #98a4d4;
+      --border: rgba(0, 240, 255, 0.25);
+      --shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+      --sky-top: #0c1033;
+      --sky-bot: #291852;
+      --ground-a: #16233d;
+      --ground-b: #1b2c4c;
+      --hinge-color: #00f0ff;
+    }
+
+    html[data-theme="daylight"] {
+      --bg: #eaf6ff;
+      --bg-grad: linear-gradient(180deg, #dff1ff 0%, #f5fbff 100%);
+      --panel: #ffffff;
+      --panel-alt: #f0f7ff;
+      --accent: #ff5e5b;
+      --accent2: #00a8e8;
+      --accent3: #ffb703;
+      --text: #18283b;
+      --muted: #566d85;
+      --border: rgba(0, 168, 232, 0.28);
+      --shadow: 0 8px 22px rgba(24, 40, 59, 0.12);
+      --sky-top: #4db8ff;
+      --sky-bot: #c9ecff;
+      --ground-a: #7bd389;
+      --ground-b: #68c478;
+      --hinge-color: #00a8e8;
+    }
+
+    html[data-theme="gold"] {
+      --bg: #11100d;
+      --bg-grad: radial-gradient(circle at 20% 0%, #262013 0%, #11100d 70%);
+      --panel: #1b1812;
+      --panel-alt: #262118;
+      --accent: #e5b84b;
+      --accent2: #f7d98c;
+      --accent3: #ff9f43;
+      --text: #fbf6e9;
+      --muted: #b5a789;
+      --border: rgba(229, 184, 75, 0.3);
+      --shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+      --sky-top: #1a150b;
+      --sky-bot: #362a14;
+      --ground-a: #242018;
+      --ground-b: #2e291e;
+      --hinge-color: #e5b84b;
+    }
+
+    html[data-theme="matrix"] {
+      --bg: #030a04;
+      --bg-grad: radial-gradient(circle at 50% 0%, #09210d 0%, #030a04 75%);
+      --panel: #08150a;
+      --panel-alt: #0e2412;
+      --accent: #00ff66;
+      --accent2: #66ffaa;
+      --accent3: #b8ff00;
+      --text: #d8ffe4;
+      --muted: #5da874;
+      --border: rgba(0, 255, 102, 0.32);
+      --shadow: 0 0 24px rgba(0, 255, 102, 0.12);
+      --sky-top: #020803;
+      --sky-bot: #0a2611;
+      --ground-a: #07190a;
+      --ground-b: #0b240f;
+      --hinge-color: #00ff66;
+    }
+
+    html[data-theme="tactical"] {
+      --bg: #06131c;
+      --bg-grad: radial-gradient(circle at 80% 0%, #0d2b3e 0%, #06131c 70%);
+      --panel: #0b1e2c;
+      --panel-alt: #112d40;
+      --accent: #00e5ff;
+      --accent2: #38bdf8;
+      --accent3: #fbbf24;
+      --text: #e8f8ff;
+      --muted: #7cb0c9;
+      --border: rgba(0, 229, 255, 0.32);
+      --shadow: 0 10px 26px rgba(0, 0, 0, 0.48);
+      --sky-top: #041521;
+      --sky-bot: #0e3852;
+      --ground-a: #0d2738;
+      --ground-b: #123348;
+      --hinge-color: #00e5ff;
+    }
+
+    /* =========================================================================
+       2. GLOBAL RESET & TYPOGRAPHY
+       ========================================================================= */
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      background-image: var(--bg-grad);
+      color: var(--text);
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+      overflow-x: hidden;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    button, select, input, textarea {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    /* =========================================================================
+       3. APP SHELL & 4-POSTURE LAYOUT RECONFIGURER
+       ========================================================================= */
+    .app-shell {
+      width: 100%;
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: max-width 0.35s cubic-bezier(0.22, 1, 0.36, 1), padding 0.25s ease;
+    }
+
+    /* Top Header Bar */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 10px 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      line-height: 1.15;
+    }
+
+    .brand-badge {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+      display: block;
+    }
+
+    .brand-badge strong {
+      color: var(--accent2);
+    }
+
+    .toolbar-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .posture-group {
+      display: inline-flex;
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .posture-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .posture-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .posture-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #0b0e1d;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .theme-select {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 7px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* Main Workspace Grid */
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(340px, 1fr);
+      gap: 14px;
+      align-items: start;
+      position: relative;
+    }
+
+    /* Fold Hinge Divider (visible only in Fold posture) */
+    .fold-hinge {
+      display: none;
+      pointer-events: none;
+    }
+
+    /* POSTURE: DESKTOP (default fluid studio) */
+    html[data-device="desktop"] .app-shell {
+      max-width: 1540px;
+    }
+
+    /* POSTURE: MOBILE (430px centered single-column touch stack) */
+    html[data-device="mobile"] .app-shell {
+      max-width: 430px;
+      padding: 8px;
+      border-left: 2px dashed var(--border);
+      border-right: 2px dashed var(--border);
+      min-height: 100vh;
+    }
+    html[data-device="mobile"] .workspace {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    html[data-device="mobile"] .canvas-wrap {
+      height: 300px;
+    }
+    html[data-device="mobile"] .topbar {
+      padding: 10px;
+    }
+
+    /* POSTURE: FOLD (unfolded dual-screen 50/50 split with visible center hinge) */
+    html[data-device="fold"] .app-shell {
+      max-width: 1180px;
+      padding: 12px;
+    }
+    html[data-device="fold"] .workspace {
+      grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr);
+      gap: 0;
+      align-items: stretch;
+    }
+    html[data-device="fold"] .fold-hinge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.45), transparent);
+      position: relative;
+      border-left: 1px dashed var(--border);
+      border-right: 1px dashed var(--border);
+      margin: 0 2px;
+      border-radius: 8px;
+    }
+    html[data-device="fold"] .fold-hinge::after {
+      content: "HINGE";
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.25em;
+      color: var(--hinge-color);
+      opacity: 0.85;
+    }
+    html[data-device="fold"] .canvas-wrap {
+      height: 410px;
+    }
+
+    /* POSTURE: TABLET (1024px touch-optimized deck) */
+    html[data-device="tablet"] .app-shell {
+      max-width: 1024px;
+      padding: 12px;
+    }
+    html[data-device="tablet"] .workspace {
+      grid-template-columns: minmax(0, 1.25fr) minmax(320px, 1fr);
+      gap: 12px;
+    }
+    html[data-device="tablet"] .canvas-wrap {
+      height: 390px;
+    }
+
+    /* Automatic mobile fallback when viewport itself is narrow in desktop mode */
+    @media (max-width: 860px) {
+      html[data-device="desktop"] .workspace,
+      html[data-device="tablet"] .workspace {
+        grid-template-columns: 1fr;
+      }
+      html[data-device="fold"] .workspace {
+        grid-template-columns: 1fr;
+      }
+      html[data-device="fold"] .fold-hinge {
+        display: none;
+      }
+    }
+
+    /* =========================================================================
+       4. CARDS, STAGE & 3D CANVAS
+       ========================================================================= */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .stage-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .veh-switcher {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .kid-btn {
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 8px 13px;
+      border-radius: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+      transition: transform 0.12s ease, background 0.2s ease, box-shadow 0.12s ease;
+      user-select: none;
+    }
+
+    .kid-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .kid-btn.active,
+    .kid-btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #0b0e1d;
+      border-color: transparent;
+    }
+
+    .kid-btn.gold {
+      background: linear-gradient(135deg, #ffd166, #ff9f1c);
+      color: #1a1200;
+      border-color: transparent;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 450px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid var(--border);
+      background: var(--sky-top);
+      touch-action: none;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    #gameCanvas:active {
+      cursor: grabbing;
+    }
+
+    /* Telemetry HUD overlay inside Canvas */
+    .hud-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px;
+      pointer-events: none;
+    }
+
+    .hud-pill {
+      background: rgba(10, 14, 30, 0.72);
+      backdrop-filter: blur(6px);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 12px;
+      padding: 5px 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-pill span {
+      color: var(--accent2);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hud-hint {
+      position: absolute;
+      bottom: 8px;
+      left: 10px;
+      background: rgba(10, 14, 30, 0.65);
+      color: #d8e2ff;
+      font-size: 0.7rem;
+      padding: 4px 9px;
+      border-radius: 10px;
+      pointer-events: none;
+    }
+
+    /* Touch & Gamepad Controls Row */
+    .controls-deck {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .dpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 46px);
+      grid-template-rows: repeat(2, 46px);
+      gap: 6px;
+    }
+
+    .dpad-btn {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      font-size: 1.15rem;
+      font-weight: 800;
+      border-radius: 13px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
+      user-select: none;
+      touch-action: none;
+    }
+
+    .dpad-btn:active, .dpad-btn.pressed {
+      background: var(--accent2);
+      color: #0b0e1d;
+      transform: translateY(2px);
+    }
+
+    .throttle-box {
+      flex: 1;
+      min-width: 170px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .slider-label strong {
+      color: var(--text);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+      height: 8px;
+    }
+
+    .action-cluster {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* =========================================================================
+       5. RIGHT STUDIO DECK (TABS: SYNTH, MISSIONS, CVTML)
+       ========================================================================= */
+    .tab-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: var(--panel-alt);
+      padding: 5px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 9px 6px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #0b0e1d;
+    }
+
+    .tab-panel {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tab-panel.active {
+      display: flex;
+    }
+
+    /* Synthesizer Styles */
+    .viz-wrap {
+      width: 100%;
+      height: 68px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    #synthVizCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .synth-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field-group label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .field-select {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .synth-keyboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .synth-key {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 6px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #0b0e1d;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
+      transition: transform 0.08s ease, filter 0.12s ease;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .synth-key small {
+      font-size: 0.68rem;
+      opacity: 0.8;
+    }
+
+    .synth-key:active, .synth-key.playing {
+      transform: translateY(3px) scale(0.97);
+      filter: brightness(1.2);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    /* Mission Tracker Styles */
+    .mission-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 99px;
+      background: rgba(128, 128, 128, 0.22);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.35s ease;
+    }
+
+    .mission-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .mission-item {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.25s ease, transform 0.2s ease;
+    }
+
+    .mission-item.done {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.12);
+    }
+
+    .mission-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .mission-badge {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent2);
+      white-space: nowrap;
+    }
+
+    .mission-item.done .mission-badge {
+      background: #22c55e;
+      color: #052e16;
+    }
+
+    /* CVTML Translator Panel */
+    .cvtml-textarea {
+      width: 100%;
+      min-height: 78px;
+      resize: vertical;
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      outline: none;
+    }
+
+    .cvtml-textarea:focus {
+      border-color: var(--accent2);
+    }
+
+    .cvtml-output {
+      width: 100%;
+      min-height: 138px;
+      max-height: 220px;
+      overflow: auto;
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      color: var(--accent2);
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+
+    .meta-strip {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 0.73rem;
+      color: var(--muted);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* =========================================================================
+       6. FOOTER & STATUS TOAST
+       ========================================================================= */
+    .app-footer {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    .app-footer strong {
+      color: var(--text);
+    }
+
+    .app-footer a {
+      color: var(--accent2);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .status-toast {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      background: linear-gradient(135deg, var(--panel), var(--panel-alt));
+      color: var(--text);
+      border: 2px solid var(--accent2);
+      border-radius: 14px;
+      padding: 10px 16px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      transform: translateY(16px);
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      max-width: 340px;
+    }
+
+    .status-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- TOP HEADER BAR -->
+    <header class="topbar">
+      <div class="brand-group">
+        <div class="brand-logo" aria-hidden="true">🚂</div>
+        <div>
+          <h1 class="brand-title">HawkRail 3D Adventure &amp; Modal Synth</h1>
+          <span class="brand-badge">
+            Engineered with <strong>Forefront Hawk</strong> (forefronthawk.com) &amp; <strong>Gemini Aargon</strong> | Serial: <code>FH-GA-20261119-MFF-TXT-A0ACE403</code>
+          </span>
+        </div>
+      </div>
+
+      <div class="toolbar-controls">
+        <!-- 4-Posture Layout Reconfigurer -->
+        <div class="posture-group" role="group" aria-label="Device Layout Posture">
+          <button type="button" id="btnPostureDesktop" class="posture-btn active" data-posture="desktop">🖥️ Desktop</button>
+          <button type="button" id="btnPostureMobile" class="posture-btn" data-posture="mobile">📱 Mobile</button>
+          <button type="button" id="btnPostureFold" class="posture-btn" data-posture="fold">📖 Fold</button>
+          <button type="button" id="btnPostureTablet" class="posture-btn" data-posture="tablet">📲 Tablet</button>
+        </div>
+
+        <!-- HawkChroma Multi-Theme Selector -->
+        <select id="selectTheme" class="theme-select" aria-label="HawkChroma Theme">
+          <option value="cyberpunk">⚡ Cyberpunk Neon</option>
+          <option value="daylight">☀️ Studio Daylight</option>
+          <option value="gold">🏆 Sophisticated Gold</option>
+          <option value="matrix">🟩 Matrix CRT</option>
+          <option value="tactical">💠 HawkX Tactical Cyan</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="workspace">
+      <!-- LEFT SCREEN: 60FPS 3D CANVAS GAME & VEHICLE CONTROLS -->
+      <section class="card" aria-label="3D Vehicle and Train Stage">
+        <div class="stage-header">
+          <div class="veh-switcher" role="group" aria-label="Vehicle Switcher">
+            <button type="button" id="btnVehTrain" class="kid-btn active">🚂 Express Train</button>
+            <button type="button" id="btnVehTruck" class="kid-btn">🛻 Monster Truck</button>
+            <button type="button" id="btnVehRover" class="kid-btn">🛸 Hover-Rover</button>
+          </div>
+          <div class="action-cluster">
+            <button type="button" id="btnCamMode" class="kid-btn">🎥 Chase Cam</button>
+            <button type="button" id="btnAutopilot" class="kid-btn">🧭 Autopilot: OFF</button>
+          </div>
+        </div>
+
+        <!-- 3D Perspective Canvas Viewport -->
+        <div id="canvasWrap" class="canvas-wrap">
+          <canvas id="gameCanvas"></canvas>
+          <div class="hud-overlay">
+            <div class="hud-pill">🚘 <span id="hudVehicle">Express Train</span></div>
+            <div class="hud-pill">⚡ <span id="hudSpeed">0 km/h</span></div>
+            <div class="hud-pill">⭐ <span id="hudStars">0</span></div>
+            <div class="hud-pill">📏 <span id="hudDist">0m</span></div>
+            <div class="hud-pill">🧭 <span id="hudAutopilot">Manual</span></div>
+            <div class="hud-pill">🎞️ <span id="hudFps">60 FPS</span></div>
+          </div>
+          <div class="hud-hint">WASD / Arrows: Drive • Space: Horn/Boost • Tab: Switch Vehicle • Drag Canvas: Orbit View</div>
+        </div>
+
+        <!-- Kid-Friendly Touch & Gamepad Deck -->
+        <div class="controls-deck">
+          <div class="dpad-grid" aria-label="Touch Steering D-Pad">
+            <div></div>
+            <button type="button" id="padUp" class="dpad-btn" aria-label="Forward">▲</button>
+            <div></div>
+            <button type="button" id="padLeft" class="dpad-btn" aria-label="Turn Left">◀</button>
+            <button type="button" id="padDown" class="dpad-btn" aria-label="Reverse">▼</button>
+            <button type="button" id="padRight" class="dpad-btn" aria-label="Turn Right">▶</button>
+          </div>
+
+          <div class="throttle-box">
+            <div class="slider-label">
+              <span>🚀 Speed Throttle</span>
+              <strong id="valThrottle">55%</strong>
+            </div>
+            <input type="range" id="sliderThrottle" min="-100" max="100" value="55" />
+            <div class="action-cluster">
+              <button type="button" id="btnHorn" class="kid-btn gold" style="flex:1; justify-content:center;">🎺 Musical Horn &amp; Boost!</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER FOLD HINGE (Visible in Fold Posture) -->
+      <div class="fold-hinge" aria-hidden="true"></div>
+
+      <!-- RIGHT SCREEN: TABBED STUDIO DECK (SYNTH / MISSIONS / CVTML) -->
+      <aside class="card" aria-label="Interactive Studio Deck">
+        <div class="tab-bar" role="tablist">
+          <button type="button" id="tabBtnSynth" class="tab-btn active" role="tab" aria-selected="true">🎹 Modal Synth</button>
+          <button type="button" id="tabBtnMissions" class="tab-btn" role="tab" aria-selected="false">🏆 Missions</button>
+          <button type="button" id="tabBtnCvtml" class="tab-btn" role="tab" aria-selected="false">🧬 CVTML Neon</button>
+        </div>
+
+        <!-- TAB 1: WEBAUDIO MODAL SYNTHESIZER -->
+        <div id="panelSynth" class="tab-panel active" role="tabpanel">
+          <div class="viz-wrap">
+            <canvas id="synthVizCanvas"></canvas>
+          </div>
+
+          <div class="synth-grid">
+            <div class="field-group">
+              <label for="selectScale">🎵 Modal Scale</label>
+              <select id="selectScale" class="field-select">
+                <option value="pentatonic">Pentatonic (Kid-Safe)</option>
+                <option value="major">Major (Happy)</option>
+                <option value="lydian">Lydian (Dreamy)</option>
+                <option value="dorian">Dorian (Groovy)</option>
+                <option value="cyber">Cyberpunk Minor</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="selectWave">〰️ Waveform</label>
+              <select id="selectWave" class="field-select">
+                <option value="triangle">Triangle (Warm)</option>
+                <option value="sine">Sine (Flute)</option>
+                <option value="sawtooth">Sawtooth (Brass)</option>
+                <option value="square">Square (Arcade)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="synth-grid">
+            <div class="field-group">
+              <div class="slider-label">
+                <span>🎛️ Filter Cutoff</span>
+                <strong id="valCutoff">2800 Hz</strong>
+              </div>
+              <input type="range" id="sliderCutoff" min="200" max="8000" value="2800" step="50" />
+            </div>
+            <div class="field-group">
+              <div class="slider-label">
+                <span>🔊 Master Volume</span>
+                <strong id="valVolume">65%</strong>
+              </div>
+              <input type="range" id="sliderVolume" min="0" max="100" value="65" />
+            </div>
+          </div>
+
+          <!-- 8-Key Interactive Musical Pad Deck -->
+          <div id="synthKeyboard" class="synth-keyboard" aria-label="8-Key Musical Pad Deck"></div>
+
+          <div class="btn-row">
+            <button type="button" id="btnGrooveToggle" class="kid-btn" style="flex:1; justify-content:center;">🥁 Train Chug Groove: OFF</button>
+            <button type="button" id="btnSynthHorn" class="kid-btn primary" style="flex:1; justify-content:center;">🚂 Play Chord Horn</button>
+          </div>
+        </div>
+
+        <!-- TAB 2: PRE-LOADED & LIVE-UPDATING MISSION TRACKER -->
+        <div id="panelMissions" class="tab-panel" role="tabpanel">
+          <div class="mission-header">
+            <strong id="missionSummaryText">0 / 5 Missions Complete</strong>
+            <button type="button" id="btnResetMissions" class="kid-btn">🔄 Reset</button>
+          </div>
+          <div class="progress-track">
+            <div id="missionOverallBar" class="progress-fill"></div>
+          </div>
+          <div id="missionList" class="mission-list"></div>
+        </div>
+
+        <!-- TAB 3: HAWK OAR -> CVTML CYPHER TRANSLATOR & CREATOR BUS -->
+        <div id="panelCvtml" class="tab-panel" role="tabpanel">
+          <div class="field-group">
+            <label for="inputOarPrompt">🦅 Hawk OAR Input (Plain-English Command / Prompt)</label>
+            <textarea id="inputOarPrompt" class="cvtml-textarea">Dispatch Express Train from Station Alpha to Sunny Summit at Neon overdrive speed, collect 5 golden stars, and harmonize Modal Synth on Pentatonic scale.</textarea>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" id="btnTranslateCvtml" class="kid-btn primary" style="flex:1; justify-content:center;">⚡ Translate to CVTML (Neon Fast-Run)</button>
+          </div>
+
+          <div class="meta-strip">
+            <span id="cvtmlMetaBadge">Ready • Neon Fast-Run Engine v2.4</span>
+            <span id="busLogBadge">Bus: hawk_creator_ecosystem_v1</span>
+          </div>
+
+          <pre id="outputCvtml" class="cvtml-output"></pre>
+
+          <div class="btn-row">
+            <button type="button" id="btnCopyCvtml" class="kid-btn">📋 Copy CVTML</button>
+            <button type="button" id="btnBroadcastBus" class="kid-btn gold">📡 Broadcast Bus</button>
+            <button type="button" id="btnExportJson" class="kid-btn">💾 .JSON</button>
+            <button type="button" id="btnExportMd" class="kid-btn">📝 .MD</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- MANDATORY ATTRIBUTION FOOTER -->
+    <footer class="app-footer">
+      <div>
+        Engineered with <strong>Forefront Hawk</strong> (<a href="https://forefronthawk.com" target="_blank" rel="noopener noreferrer">forefronthawk.com</a>) &amp; <strong>Gemini Aargon</strong> | Serial: <code>FH-GA-20261119-MFF-TXT-A0ACE403</code>
+      </div>
+      <div>
+        🦅 HawkRail 3D • 4-Posture Adaptive • Pure Canvas 3D &amp; WebAudio DSP
+      </div>
+    </footer>
+  </div>
+
+  <!-- NON-BLOCKING STATUS TOAST -->
+  <div id="statusToast" class="status-toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* =======================================================================
+         1. SAFE UTILITIES (TOAST, STORAGE, CLIPBOARD, BROADCAST BUS)
+         ======================================================================= */
+      const SERIAL_ID = "FH-GA-20261119-MFF-TXT-A0ACE403";
+      const BUS_NAME = "hawk_creator_ecosystem_v1";
+      let toastTimer = null;
+
+      function showToast(msg) {
+        const el = document.getElementById("statusToast");
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          el.classList.remove("show");
+        }, 2800);
+      }
+
+      function safeStorageSet(key, val) {
+        try {
+          window.localStorage.setItem(key, JSON.stringify(val));
+        } catch (err) {
+          /* Sandboxed storage fallback silently ignored */
+        }
+      }
+
+      function safeStorageGet(key, fallback) {
+        try {
+          const raw = window.localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (err) {
+          return fallback;
+        }
+      }
+
+      let creatorBus = null;
+      try {
+        if (typeof BroadcastChannel !== "undefined") {
+          creatorBus = new BroadcastChannel(BUS_NAME);
+          creatorBus.onmessage = (ev) => {
+            if (ev && ev.data && ev.data.type) {
+              const badge = document.getElementById("busLogBadge");
+              if (badge) badge.textContent = "Bus RX: " + ev.data.type;
+            }
+          };
+        }
+      } catch (err) {
+        creatorBus = null;
+      }
+
+      /* =======================================================================
+         2. WEBAUDIO MODAL SYNTHESIZER ENGINE
+         ======================================================================= */
+      const SCALES = {
+        pentatonic: { name: "Pentatonic", freqs: [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25], labels: ["C4", "D4", "E4", "G4", "A4", "C5", "D5", "E5"] },
+        major:      { name: "Major",      freqs: [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25], labels: ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"] },
+        lydian:     { name: "Lydian",     freqs: [261.63, 293.66, 329.63, 369.99, 392.00, 440.00, 493.88, 523.25], labels: ["C4", "D4", "E4", "F#4", "G4", "A4", "B4", "C5"] },
+        dorian:     { name: "Dorian",     freqs: [293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33], labels: ["D4", "E4", "F4", "G4", "A4", "B4", "C5", "D5"] },
+        cyber:      { name: "Cyber Minor",freqs: [220.00, 261.63, 293.66, 311.13, 329.63, 392.00, 440.00, 523.25], labels: ["A3", "C4", "D4", "Eb4", "E4", "G4", "A4", "C5"] }
+      };
+
+      const KEY_COLORS = [
+        "linear-gradient(135deg, #ff5e7e, #ff8fa3)",
+        "linear-gradient(135deg, #ff9f43, #ffbe76)",
+        "linear-gradient(135deg, #ffd166, #ffe899)",
+        "linear-gradient(135deg, #2ed573, #7bed9f)",
+        "linear-gradient(135deg, #00f0ff, #70f8ff)",
+        "linear-gradient(135deg, #48dbfb, #82ccdd)",
+        "linear-gradient(135deg, #a55eea, #d1a3ff)",
+        "linear-gradient(135deg, #ff2e93, #ff7eb9)"
+      ];
+
+      const synthState = {
+        ctx: null,
+        masterGain: null,
+        filter: null,
+        analyser: null,
+        scale: "pentatonic",
+        wave: "triangle",
+        cutoff: 2800,
+        volume: 0.65,
+        grooveActive: false,
+        grooveTimer: null,
+        grooveStep: 0,
+        vizEnergy: new Float32Array(24)
+      };
+
+      function ensureAudio() {
+        try {
+          if (!synthState.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return false;
+            synthState.ctx = new AudioCtx();
+            synthState.filter = synthState.ctx.createBiquadFilter();
+            synthState.filter.type = "lowpass";
+            synthState.filter.frequency.value = synthState.cutoff;
+            synthState.filter.Q.value = 2.4;
+
+            synthState.masterGain = synthState.ctx.createGain();
+            synthState.masterGain.gain.value = synthState.volume * 0.4;
+
+            synthState.analyser = synthState.ctx.createAnalyser();
+            synthState.analyser.fftSize = 64;
+
+            synthState.filter.connect(synthState.masterGain);
+            synthState.masterGain.connect(synthState.analyser);
+            synthState.analyser.connect(synthState.ctx.destination);
+          }
+          if (synthState.ctx.state === "suspended") {
+            synthState.ctx.resume();
+          }
+          return true;
+        } catch (err) {
+          return false;
+        }
+      }
+
+      function playNote(freq, duration, waveOverride, gainScale) {
+        if (!ensureAudio()) return;
+        try {
+          const ctx = synthState.ctx;
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const env = ctx.createGain();
+          osc.type = waveOverride || synthState.wave;
+          osc.frequency.setValueAtTime(freq, now);
+
+          const peak = Math.max(0.05, (gainScale || 1) * 0.55);
+          env.gain.setValueAtTime(0.001, now);
+          env.gain.exponentialRampToValueAtTime(peak, now + 0.018);
+          env.gain.exponentialRampToValueAtTime(0.0008, now + (duration || 0.38));
+
+          osc.connect(env);
+          env.connect(synthState.filter);
+
+          osc.start(now);
+          osc.stop(now + (duration || 0.38) + 0.04);
+
+          /* Kick visual energy bars */
+          for (let i = 0; i < synthState.vizEnergy.length; i++) {
+            synthState.vizEnergy[i] = Math.min(1, synthState.vizEnergy[i] + 0.35 + Math.random() * 0.55);
+          }
+        } catch (err) {
+          /* Ignore audio errors cleanly */
+        }
+      }
+
+      function playScaleKey(idx, countForMission) {
+        const scale = SCALES[synthState.scale] || SCALES.pentatonic;
+        const safeIdx = ((idx % scale.freqs.length) + scale.freqs.length) % scale.freqs.length;
+        playNote(scale.freqs[safeIdx], 0.42);
+        const keyEl = document.querySelector('.synth-key[data-key-idx="' + safeIdx + '"]');
+        if (keyEl) {
+          keyEl.classList.add("playing");
+          setTimeout(() => keyEl.classList.remove("playing"), 170);
+        }
+        if (countForMission) {
+          missionProgress.notesPlayed += 1;
+          updateMissions();
+        }
+      }
+
+      function playTrainHorn() {
+        const scale = SCALES[synthState.scale] || SCALES.pentatonic;
+        playNote(scale.freqs[0], 0.55, "sawtooth", 0.55);
+        playNote(scale.freqs[2], 0.55, "triangle", 0.55);
+        playNote(scale.freqs[4], 0.62, "triangle", 0.5);
+        missionProgress.notesPlayed += 1;
+        updateMissions();
+      }
+
+      function playStarChime() {
+        const scale = SCALES[synthState.scale] || SCALES.pentatonic;
+        const i = Math.floor(Math.random() * 4) + 3;
+        playNote(scale.freqs[i % scale.freqs.length], 0.25, "sine", 0.65);
+        setTimeout(() => playNote(scale.freqs[(i + 2) % scale.freqs.length], 0.32, "triangle", 0.55), 85);
+      }
+
+      function playMissionFanfare() {
+        const scale = SCALES[synthState.scale] || SCALES.pentatonic;
+        [0, 2, 4, 7].forEach((n, step) => {
+          setTimeout(() => playNote(scale.freqs[n], 0.36, "triangle", 0.65), step * 95);
+        });
+      }
+
+      function toggleGroove() {
+        const btn = document.getElementById("btnGrooveToggle");
+        synthState.grooveActive = !synthState.grooveActive;
+        if (synthState.grooveActive) {
+          ensureAudio();
+          if (btn) {
+            btn.textContent = "🥁 Train Chug Groove: ON";
+            btn.classList.add("active");
+          }
+          showToast("🚂 Musical Train Chug Groove started!");
+          const pattern = [0, 0, 2, 4, 0, 3, 2, 5];
+          synthState.grooveTimer = setInterval(() => {
+            const scale = SCALES[synthState.scale] || SCALES.pentatonic;
+            const noteIdx = pattern[synthState.grooveStep % pattern.length];
+            const freq = scale.freqs[noteIdx] * (synthState.grooveStep % 2 === 0 ? 0.5 : 1);
+            playNote(freq, 0.16, synthState.grooveStep % 4 === 0 ? "square" : "triangle", 0.28);
+            synthState.grooveStep++;
+          }, 220);
+        } else {
+          if (synthState.grooveTimer) clearInterval(synthState.grooveTimer);
+          synthState.grooveTimer = null;
+          if (btn) {
+            btn.textContent = "🥁 Train Chug Groove: OFF";
+            btn.classList.remove("active");
+          }
+        }
+      }
+
+      function buildSynthKeyboard() {
+        const container = document.getElementById("synthKeyboard");
+        if (!container) return;
+        const scale = SCALES[synthState.scale] || SCALES.pentatonic;
+        container.innerHTML = "";
+        scale.labels.forEach((lbl, i) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "synth-key";
+          btn.dataset.keyIdx = String(i);
+          btn.style.background = KEY_COLORS[i % KEY_COLORS.length];
+          btn.innerHTML = "<span>" + lbl + "</span><small>Key " + (i + 1) + "</small>";
+          const trigger = (e) => {
+            e.preventDefault();
+            playScaleKey(i, true);
+          };
+          btn.addEventListener("pointerdown", trigger);
+          container.appendChild(btn);
+        });
+      }
+
+      /* =======================================================================
+         3. MISSION TRACKER (5 PRE-LOADED LIVE MISSIONS)
+         ======================================================================= */
+      const missionProgress = {
+        distanceMeters: 0,
+        starsCollected: 0,
+        notesPlayed: 0,
+        vehiclesUsed: { train: true, truck: false, rover: false },
+        cvtmlTranslated: 0,
+        completedIds: {}
+      };
+
+      const MISSIONS = [
+        {
+          id: "m_drive",
+          title: "All Aboard! Drive 200m in the Train or Truck",
+          target: 200,
+          unit: "m",
+          getVal: () => Math.floor(missionProgress.distanceMeters)
+        },
+        {
+          id: "m_stars",
+          title: "Star Collector: Grab 5 Golden Stars",
+          target: 5,
+          unit: "⭐",
+          getVal: () => missionProgress.starsCollected
+        },
+        {
+          id: "m_music",
+          title: "Musical Conductor: Play 4 Notes or Honk the Synth Horn",
+          target: 4,
+          unit: "🎵",
+          getVal: () => missionProgress.notesPlayed
+        },
+        {
+          id: "m_fleet",
+          title: "Vehicle Fleet: Switch between Train, Truck, and Hover-Rover",
+          target: 3,
+          unit: "🚘",
+          getVal: () => Object.values(missionProgress.vehiclesUsed).filter(Boolean).length
+        },
+        {
+          id: "m_cvtml",
+          title: "Neon Cypher Dispatch: Translate a prompt via Hawk OAR -> CVTML",
+          target: 1,
+          unit: "🧬",
+          getVal: () => missionProgress.cvtmlTranslated
+        }
+      ];
+
+      function updateMissions() {
+        const listEl = document.getElementById("missionList");
+        const summaryEl = document.getElementById("missionSummaryText");
+        const barEl = document.getElementById("missionOverallBar");
+        if (!listEl) return;
+
+        let doneCount = 0;
+        let html = "";
+
+        MISSIONS.forEach((m) => {
+          const cur = Math.min(m.target, m.getVal());
+          const pct = Math.min(100, Math.round((cur / Math.max(1, m.target)) * 100));
+          const isDone = cur >= m.target;
+          if (isDone) {
+            doneCount++;
+            if (!missionProgress.completedIds[m.id]) {
+              missionProgress.completedIds[m.id] = true;
+              spawnConfetti(gameState.vehPos.x, gameState.vehPos.y + 22, gameState.vehPos.z, 45);
+              playMissionFanfare();
+              showToast("🏆 Mission Complete: " + m.title);
+            }
+          }
+
+          html +=
+            '<div class="mission-item ' + (isDone ? "done" : "") + '">' +
+              '<div class="mission-top">' +
+                '<span>' + (isDone ? "✅ " : "🎯 ") + m.title + '</span>' +
+                '<span class="mission-badge">' + cur + " / " + m.target + " " + m.unit + '</span>' +
+              '</div>' +
+              '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+            '</div>';
+        });
+
+        listEl.innerHTML = html;
+        if (summaryEl) summaryEl.textContent = doneCount + " / " + MISSIONS.length + " Missions Complete";
+        if (barEl) barEl.style.width = Math.round((doneCount / MISSIONS.length) * 100) + "%";
+      }
+
+      function resetMissions() {
+        missionProgress.distanceMeters = 0;
+        missionProgress.starsCollected = 0;
+        missionProgress.notesPlayed = 0;
+        missionProgress.vehiclesUsed = {
+          train: gameState.vehicle === "train",
+          truck: gameState.vehicle === "truck",
+          rover: gameState.vehicle === "rover"
+        };
+        missionProgress.cvtmlTranslated = 0;
+        missionProgress.completedIds = {};
+        updateMissions();
+        showToast("🔄 Missions reset! Ready for a fresh adventure.");
+      }
+
+      /* =======================================================================
+         4. HAWK OAR -> CVTML CYPHER TRANSLATOR & CREATOR BUS
+         ======================================================================= */
+      function fnv1aHash(str) {
+        let h = 0x811c9dc5;
+        for (let i = 0; i < str.length; i++) {
+          h ^= str.charCodeAt(i);
+          h = (h * 0x01000193) >>> 0;
+        }
+        return h.toString(16).toUpperCase().padStart(8, "0");
+      }
+
+      function translateOarToCvtml(countMission) {
+        const inputEl = document.getElementById("inputOarPrompt");
+        const outEl = document.getElementById("outputCvtml");
+        const metaEl = document.getElementById("cvtmlMetaBadge");
+        if (!inputEl || !outEl) return "";
+
+        const raw = (inputEl.value || "").trim() || "Dispatch HawkRail Express to Neon Depot";
+        const tokens = raw.split(/\s+/).filter(Boolean);
+        const checksum = fnv1aHash(raw + SERIAL_ID);
+        const latencyMs = (0.42 + (tokens.length * 0.03)).toFixed(2);
+
+        const opcodes = tokens.slice(0, 14).map((tok, idx) => {
+          const clean = tok.replace(/[^a-zA-Z0-9_-]/g, "").toUpperCase() || "SYM";
+          const code = "0x" + ((clean.charCodeAt(0) * 17 + idx * 31) % 255).toString(16).toUpperCase().padStart(2, "0");
+          return '    <op idx="' + idx + '" hex="' + code + '" sym="' + clean + '" />';
+        }).join("\n");
+
+        const cvtml =
+          '<cvtml:neon speed="max" mode="oar" runtime="hawksuite-neon">\n' +
+          '  <meta serial="' + SERIAL_ID + '" checksum="' + checksum + '" latency_ms="' + latencyMs + '" />\n' +
+          '  <credits platform="Forefront Hawk" partner="Gemini Aargon" />\n' +
+          '  <telemetry vehicle="' + gameState.vehicle + '" stars="' + missionProgress.starsCollected + '" scale="' + synthState.scale + '" />\n' +
+          '  <stream tokens="' + tokens.length + '">\n' +
+          opcodes + "\n" +
+          '  </stream>\n' +
+          '  <exec commit="instant" verify="14-pass" />\n' +
+          '</cvtml:neon>';
+
+        outEl.textContent = cvtml;
+        if (metaEl) {
+          metaEl.textContent = "Checksum #" + checksum + " • Est. Neon Run: " + latencyMs + "ms • " + tokens.length + " tokens";
+        }
+        if (countMission) {
+          missionProgress.cvtmlTranslated += 1;
+          updateMissions();
+          playScaleKey(5, false);
+          showToast("🧬 Translated to CVTML in " + latencyMs + "ms!");
+        }
+        return cvtml;
+      }
+
+      function copyCvtml() {
+        const outEl = document.getElementById("outputCvtml");
+        if (!outEl || !outEl.textContent) return;
+        try {
+          const temp = document.createElement("textarea");
+          temp.value = outEl.textContent;
+          temp.style.position = "fixed";
+          temp.style.opacity = "0";
+          document.body.appendChild(temp);
+          temp.select();
+          document.execCommand("copy");
+          document.body.removeChild(temp);
+          showToast("📋 CVTML cypher copied to clipboard!");
+        } catch (err) {
+          showToast("⚠️ Clipboard restricted in this browser frame.");
+        }
+      }
+
+      function broadcastEcosystem() {
+        const outEl = document.getElementById("outputCvtml");
+        const payload = {
+          type: "HAWKRAIL_CVTML_DISPATCH",
+          serial: SERIAL_ID,
+          timestamp: new Date().toISOString(),
+          vehicle: gameState.vehicle,
+          stars: missionProgress.starsCollected,
+          cvtml: outEl ? outEl.textContent : ""
+        };
+        safeStorageSet(BUS_NAME + "_last", payload);
+        if (creatorBus) {
+          try {
+            creatorBus.postMessage(payload);
+          } catch (err) { /* ignore */ }
+        }
+        const badge = document.getElementById("busLogBadge");
+        if (badge) badge.textContent = "Bus TX: " + new Date().toLocaleTimeString();
+        showToast("📡 Dispatched to " + BUS_NAME + "!");
+      }
+
+      function downloadFile(filename, content, mime) {
+        try {
+          const blob = new Blob([content], { type: mime });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          showToast("💾 Exported " + filename);
+        } catch (err) {
+          showToast("⚠️ Export blocked by sandbox.");
+        }
+      }
+
+      /* =======================================================================
+         5. 60FPS 3D PERSPECTIVE CANVAS VEHICLE & TRAIN SIMULATION
+         ======================================================================= */
+      const gameCanvas = document.getElementById("gameCanvas");
+      const gCtx = gameCanvas ? gameCanvas.getContext("2d") : null;
+      const vizCanvas = document.getElementById("synthVizCanvas");
+      const vCtx = vizCanvas ? vizCanvas.getContext("2d") : null;
+
+      const TRACK_RX = 340;
+      const TRACK_RZ = 220;
+
+      function getTrackPoint(t) {
+        const a = t * Math.PI * 2;
+        /* Scenic rounded-loop railway curve */
+        const x = Math.cos(a) * TRACK_RX + Math.sin(a * 2) * 34;
+        const z = Math.sin(a) * TRACK_RZ;
+        return { x, z };
+      }
+
+      function getTrackTangent(t) {
+        const p1 = getTrackPoint(t);
+        const p2 = getTrackPoint((t + 0.002) % 1);
+        return Math.atan2(p2.x - p1.x, p2.z - p1.z);
+      }
+
+      const STATIONS = [
+        { name: "Station Alpha", t: 0.0,  color: "#ff2e93" },
+        { name: "Neon Depot",    t: 0.34, color: "#00f0ff" },
+        { name: "Sunny Summit",  t: 0.68, color: "#ffd166" }
+      ];
+
+      /* Pre-generate cute trees around the railway */
+      const TREES = [];
+      for (let i = 0; i < 34; i++) {
+        const angle = (i / 34) * Math.PI * 2 + 0.15;
+        const dist = (i % 3 === 0) ? (120 + (i % 5) * 18) : (425 + (i % 4) * 32);
+        TREES.push({
+          x: Math.cos(angle) * dist,
+          z: Math.sin(angle) * (dist * 0.72),
+          scale: 0.8 + (i % 4) * 0.22,
+          hue: i % 2 === 0 ? "#2ed573" : "#1dd1a1"
+        });
+      }
+
+      /* Clouds / Sky sparkles */
+      const CLOUDS = [];
+      for (let i = 0; i < 14; i++) {
+        CLOUDS.push({
+          x: (Math.random() - 0.5) * 1200,
+          y: 170 + Math.random() * 110,
+          z: (Math.random() - 0.5) * 1000,
+          size: 26 + Math.random() * 24,
+          speed: 5 + Math.random() * 8
+        });
+      }
+
+      /* Collectible Golden Stars & Cargo Crates */
+      const STARS = [];
+      function spawnStar(idx) {
+        const onTrack = idx % 2 === 0;
+        let x, z;
+        if (onTrack) {
+          const tp = getTrackPoint((idx * 0.13 + Math.random() * 0.08) % 1);
+          x = tp.x;
+          z = tp.z;
+        } else {
+          const a = Math.random() * Math.PI * 2;
+          const r = 70 + Math.random() * 220;
+          x = Math.cos(a) * r;
+          z = Math.sin(a) * r * 0.7;
+        }
+        return { x, y: 16, z, phase: Math.random() * Math.PI * 2, isCrate: idx % 3 === 0 };
+      }
+      for (let i = 0; i < 10; i++) STARS.push(spawnStar(i));
+
+      /* Particles (steam puffs + celebration confetti) */
+      const PARTICLES = [];
+      function spawnSteam(x, y, z, color) {
+        if (PARTICLES.length > 140) return;
+        PARTICLES.push({
+          x, y, z,
+          vx: (Math.random() - 0.5) * 14,
+          vy: 26 + Math.random() * 18,
+          vz: (Math.random() - 0.5) * 14,
+          life: 1.0,
+          size: 7 + Math.random() * 7,
+          color: color || "#ffffff",
+          kind: "steam"
+        });
+      }
+
+      function spawnConfetti(x, y, z, count) {
+        const palette = ["#ff2e93", "#00f0ff", "#ffd166", "#2ed573", "#a55eea", "#ffffff"];
+        for (let i = 0; i < count; i++) {
+          PARTICLES.push({
+            x, y, z,
+            vx: (Math.random() - 0.5) * 140,
+            vy: 60 + Math.random() * 110,
+            vz: (Math.random() - 0.5) * 140,
+            life: 1.4 + Math.random() * 0.6,
+            size: 5 + Math.random() * 5,
+            color: palette[i % palette.length],
+            kind: "confetti"
+          });
+        }
+      }
+
+      /* Core Game State */
+      const gameState = {
+        vehicle: "train",          // "train" | "truck" | "rover"
+        camMode: "chase",          // "chase" | "orbit" | "overhead"
+        autopilot: false,
+        throttle: 0.55,            // -1 to 1
+        trainT: 0.02,
+        vehPos: { x: 340, y: 0, z: 0 },
+        vehHeading: 0,
+        speed: 0,
+        boostTimer: 0,
+        camYawOffset: 0,
+        camPitchOffset: 0,
+        keys: { up: false, down: false, left: false, right: false },
+        time: 0,
+        fps: 60,
+        frameCount: 0,
+        fpsAccum: 0,
+        activeWaypoint: null
+      };
+
+      /* Switch Vehicle */
+      function setVehicle(type) {
+        gameState.vehicle = type;
+        missionProgress.vehiclesUsed[type] = true;
+        updateMissions();
+
+        const map = {
+          train: { btn: "btnVehTrain", label: "Express Train" },
+          truck: { btn: "btnVehTruck", label: "Monster Truck" },
+          rover: { btn: "btnVehRover", label: "Hover-Rover" }
+        };
+        Object.keys(map).forEach((k) => {
+          const el = document.getElementById(map[k].btn);
+          if (el) el.classList.toggle("active", k === type);
+        });
+        const hudV = document.getElementById("hudVehicle");
+        if (hudV) hudV.textContent = map[type].label;
+
+        if (type === "train") {
+          const tp = getTrackPoint(gameState.trainT);
+          gameState.vehPos.x = tp.x;
+          gameState.vehPos.z = tp.z;
+          gameState.vehHeading = getTrackTangent(gameState.trainT);
+        }
+        playScaleKey(type === "train" ? 0 : type === "truck" ? 2 : 4, false);
+        showToast("🚘 Switched to " + map[type].label + "!");
+      }
+
+      /* Cycle Camera Mode */
+      function cycleCamera() {
+        const order = ["chase", "orbit", "overhead"];
+        const labels = { chase: "🎥 Chase Cam", orbit: "🪐 Orbit Cam", overhead: "🛰️ Overhead Cam" };
+        const next = order[(order.indexOf(gameState.camMode) + 1) % order.length];
+        gameState.camMode = next;
+        gameState.camYawOffset = 0;
+        gameState.camPitchOffset = 0;
+        const btn = document.getElementById("btnCamMode");
+        if (btn) btn.textContent = labels[next];
+        showToast("Camera: " + labels[next]);
+      }
+
+      /* Toggle Autopilot Waypoint Routing */
+      function toggleAutopilot() {
+        gameState.autopilot = !gameState.autopilot;
+        const btn = document.getElementById("btnAutopilot");
+        if (btn) {
+          btn.textContent = gameState.autopilot ? "🧭 Autopilot: ON" : "🧭 Autopilot: OFF";
+          btn.classList.toggle("active", gameState.autopilot);
+        }
+        const hudA = document.getElementById("hudAutopilot");
+        if (hudA) hudA.textContent = gameState.autopilot ? "Auto-Route" : "Manual";
+        showToast(gameState.autopilot ? "🧭 Autopilot engaged! Routing to nearest star." : "🧭 Manual control restored.");
+      }
+
+      /* Horn + Speed Boost */
+      function triggerHornBoost() {
+        gameState.boostTimer = 1.1;
+        playTrainHorn();
+        spawnSteam(gameState.vehPos.x, gameState.vehPos.y + 24, gameState.vehPos.z, "#00f0ff");
+        spawnSteam(gameState.vehPos.x, gameState.vehPos.y + 28, gameState.vehPos.z, "#ff2e93");
+        showToast("🎺 TOOT-TOOT! Turbo Boost activated!");
+      }
+
+      /* =======================================================================
+         6. 3D PROJECTION & PAINTER'S ALGORITHM RENDERER
+         ======================================================================= */
+      function getThemeColors() {
+        const cs = getComputedStyle(document.documentElement);
+        return {
+          skyTop: cs.getPropertyValue("--sky-top").trim() || "#0c1033",
+          skyBot: cs.getPropertyValue("--sky-bot").trim() || "#291852",
+          groundA: cs.getPropertyValue("--ground-a").trim() || "#16233d",
+          groundB: cs.getPropertyValue("--ground-b").trim() || "#1b2c4c",
+          accent: cs.getPropertyValue("--accent").trim() || "#ff2e93",
+          accent2: cs.getPropertyValue("--accent2").trim() || "#00f0ff",
+          accent3: cs.getPropertyValue("--accent3").trim() || "#ffd166"
+        };
+      }
+
+      function projectPoint(wx, wy, wz, cam) {
+        const dx = wx - cam.x;
+        const dy = wy - cam.y;
+        const dz = wz - cam.z;
+
+        const cosY = Math.cos(-cam.yaw);
+        const sinY = Math.sin(-cam.yaw);
+        const rx = dx * cosY - dz * sinY;
+        const rz1 = dx * sinY + dz * cosY;
+
+        const cosP = Math.cos(-cam.pitch);
+        const sinP = Math.sin(-cam.pitch);
+        const ry = dy * cosP - rz1 * sinP;
+        const rz = dy * sinP + rz1 * cosP;
+
+        if (rz < 8) return null;
+        const scale = cam.fov / rz;
+        return {
+          x: cam.cx + rx * scale,
+          y: cam.cy - ry * scale,
+          z: rz,
+          s: scale
+        };
+      }
+
+      function addBox3D(queue, cx, cy, cz, w, h, d, yaw, colTop, colSideA, colSideB, cam) {
+        const hw = w * 0.5, hh = h * 0.5, hd = d * 0.5;
+        const c = Math.cos(yaw), s = Math.sin(yaw);
+        const corners = [
+          [-hw, -hh, -hd], [hw, -hh, -hd], [hw, -hh, hd], [-hw, -hh, hd],
+          [-hw,  hh, -hd], [hw,  hh, -hd], [hw,  hh, hd], [-hw,  hh, hd]
+        ].map(([lx, ly, lz]) => {
+          const wx = cx + lx * c + lz * s;
+          const wz = cz - lx * s + lz * c;
+          return projectPoint(wx, cy + ly, wz, cam);
+        });
+
+        if (corners.some((p) => !p)) return;
+
+        const faces = [
+          { idx: [4, 5, 6, 7], col: colTop },   // top
+          { idx: [0, 1, 5, 4], col: colSideA }, // back
+          { idx: [2, 3, 7, 6], col: colSideA }, // front
+          { idx: [1, 2, 6, 5], col: colSideB }, // right
+          { idx: [3, 0, 4, 7], col: colSideB }  // left
+        ];
+
+        faces.forEach((f) => {
+          const pts = f.idx.map((i) => corners[i]);
+          const depth = (pts[0].z + pts[1].z + pts[2].z + pts[3].z) * 0.25;
+          queue.push({
+            depth,
+            draw: (ctx) => {
+              ctx.beginPath();
+              ctx.moveTo(pts[0].x, pts[0].y);
+              ctx.lineTo(pts[1].x, pts[1].y);
+              ctx.lineTo(pts[2].x, pts[2].y);
+              ctx.lineTo(pts[3].x, pts[3].y);
+              ctx.closePath();
+              ctx.fillStyle = f.col;
+              ctx.fill();
+              ctx.strokeStyle = "rgba(0,0,0,0.22)";
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          });
+        });
+      }
+
+      function addPyramid3D(queue, cx, baseY, cz, radius, height, colA, colB, cam) {
+        const apex = projectPoint(cx, baseY + height, cz, cam);
+        const b0 = projectPoint(cx - radius, baseY, cz - radius, cam);
+        const b1 = projectPoint(cx + radius, baseY, cz - radius, cam);
+        const b2 = projectPoint(cx + radius, baseY, cz + radius, cam);
+        const b3 = projectPoint(cx - radius, baseY, cz + radius, cam);
+        if (!apex || !b0 || !b1 || !b2 || !b3) return;
+
+        const tris = [
+          { pts: [apex, b0, b1], col: colA },
+          { pts: [apex, b1, b2], col: colB },
+          { pts: [apex, b2, b3], col: colA },
+          { pts: [apex, b3, b0], col: colB }
+        ];
+        tris.forEach((t) => {
+          const depth = (t.pts[0].z + t.pts[1].z + t.pts[2].z) / 3;
+          queue.push({
+            depth,
+            draw: (ctx) => {
+              ctx.beginPath();
+              ctx.moveTo(t.pts[0].x, t.pts[0].y);
+              ctx.lineTo(t.pts[1].x, t.pts[1].y);
+              ctx.lineTo(t.pts[2].x, t.pts[2].y);
+              ctx.closePath();
+              ctx.fillStyle = t.col;
+              ctx.fill();
+            }
+          });
+        });
+      }
+
+      function drawStarShape(ctx, cx, cy, spikes, outerR, innerR, rot, fill) {
+        let angle = rot;
+        const step = Math.PI / spikes;
+        ctx.beginPath();
+        for (let i = 0; i < spikes * 2; i++) {
+          const r = i % 2 === 0 ? outerR : innerR;
+          const x = cx + Math.cos(angle) * r;
+          const y = cy + Math.sin(angle) * r;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+          angle += step;
+        }
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+
+      /* Update Simulation Physics */
+      function updateGame(dt) {
+        gameState.time += dt;
+        if (gameState.boostTimer > 0) gameState.boostTimer = Math.max(0, gameState.boostTimer - dt);
+
+        const boostMult = gameState.boostTimer > 0 ? 1.75 : 1.0;
+
+        /* Keyboard + Touch throttle influence */
+        let driveInput = gameState.throttle;
+        if (gameState.keys.up) driveInput = 1.0;
+        else if (gameState.keys.down) driveInput = -0.8;
+
+        let steerInput = 0;
+        if (gameState.keys.left) steerInput -= 1;
+        if (gameState.keys.right) steerInput += 1;
+
+        /* Find nearest star for Autopilot */
+        let nearestStar = null;
+        let nearestDist = Infinity;
+        for (let i = 0; i < STARS.length; i++) {
+          const st = STARS[i];
+          const d = Math.hypot(st.x - gameState.vehPos.x, st.z - gameState.vehPos.z);
+          if (d < nearestDist) {
+            nearestDist = d;
+            nearestStar = st;
+          }
+        }
+        gameState.activeWaypoint = gameState.autopilot ? nearestStar : null;
+
+        const prevX = gameState.vehPos.x;
+        const prevZ = gameState.vehPos.z;
+
+        if (gameState.vehicle === "train") {
+          const targetSpeed = (gameState.autopilot ? 0.85 : driveInput) * 145 * boostMult;
+          gameState.speed += (targetSpeed - gameState.speed) * Math.min(1, dt * 4);
+          const trackCircumference = 1850;
+          gameState.trainT = (gameState.trainT + (gameState.speed * dt) / trackCircumference + 10) % 1;
+          const tp = getTrackPoint(gameState.trainT);
+          gameState.vehPos.x = tp.x;
+          gameState.vehPos.y = 0;
+          gameState.vehPos.z = tp.z;
+          gameState.vehHeading = getTrackTangent(gameState.trainT);
+
+          if (Math.abs(gameState.speed) > 20 && Math.random() < dt * 10) {
+            const smokeCol = gameState.boostTimer > 0 ? "#00f0ff" : "rgba(255,255,255,0.85)";
+            spawnSteam(gameState.vehPos.x, 30, gameState.vehPos.z, smokeCol);
+          }
+        } else {
+          /* Free-roam 3D Vehicle: Monster Truck or Hover-Rover */
+          const maxSpd = gameState.vehicle === "rover" ? 210 : 165;
+          if (gameState.autopilot && nearestStar) {
+            const desiredAngle = Math.atan2(nearestStar.x - gameState.vehPos.x, nearestStar.z - gameState.vehPos.z);
+            let diff = desiredAngle - gameState.vehHeading;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            gameState.vehHeading += Math.max(-3.2 * dt, Math.min(3.2 * dt, diff));
+            driveInput = 0.88;
+          } else {
+            gameState.vehHeading += steerInput * 2.4 * dt * (driveInput < -0.1 ? -1 : 1);
+          }
+
+          const targetSpeed = driveInput * maxSpd * boostMult;
+          gameState.speed += (targetSpeed - gameState.speed) * Math.min(1, dt * 5);
+          gameState.vehPos.x += Math.sin(gameState.vehHeading) * gameState.speed * dt;
+          gameState.vehPos.z += Math.cos(gameState.vehHeading) * gameState.speed * dt;
+
+          /* Keep inside scenic playground bounds */
+          const bound = 480;
+          gameState.vehPos.x = Math.max(-bound, Math.min(bound, gameState.vehPos.x));
+          gameState.vehPos.z = Math.max(-360, Math.min(360, gameState.vehPos.z));
+
+          if (gameState.vehicle === "rover") {
+            gameState.vehPos.y = 10 + Math.sin(gameState.time * 5.2) * 3.5;
+            if (Math.random() < dt * 14) {
+              spawnSteam(gameState.vehPos.x, gameState.vehPos.y - 2, gameState.vehPos.z, "#00f0ff");
+            }
+          } else {
+            /* Monster truck bouncy suspension */
+            gameState.vehPos.y = Math.abs(Math.sin(gameState.time * 12)) * (Math.abs(gameState.speed) / maxSpd) * 3.2;
+          }
+        }
+
+        /* Accumulate distance for Mission 1 */
+        const moved = Math.hypot(gameState.vehPos.x - prevX, gameState.vehPos.z - prevZ);
+        if (moved > 0.01) {
+          missionProgress.distanceMeters += moved * 0.25;
+        }
+
+        /* Collect Stars */
+        for (let i = 0; i < STARS.length; i++) {
+          const st = STARS[i];
+          const d = Math.hypot(st.x - gameState.vehPos.x, st.z - gameState.vehPos.z);
+          if (d < 34) {
+            missionProgress.starsCollected += 1;
+            spawnConfetti(st.x, 18, st.z, 22);
+            playStarChime();
+            STARS[i] = spawnStar(i + missionProgress.starsCollected);
+            updateMissions();
+          }
+        }
+
+        /* Update clouds & particles */
+        for (let i = 0; i < CLOUDS.length; i++) {
+          CLOUDS[i].x += CLOUDS[i].speed * dt;
+          if (CLOUDS[i].x > 640) CLOUDS[i].x = -640;
+        }
+        for (let i = PARTICLES.length - 1; i >= 0; i--) {
+          const p = PARTICLES[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.z += p.vz * dt;
+          if (p.kind === "confetti") p.vy -= 140 * dt;
+          p.life -= dt;
+          if (p.life <= 0 || p.y < 0) PARTICLES.splice(i, 1);
+        }
+
+        /* Periodic mission bar refresh for distance */
+        if (Math.floor(gameState.time * 4) !== Math.floor((gameState.time - dt) * 4)) {
+          updateMissions();
+        }
+      }
+
+      /* Render 3D Scene */
+      function renderGame() {
+        if (!gCtx || !gameCanvas) return;
+        const w = gameCanvas.width;
+        const h = gameCanvas.height;
+        if (w <= 0 || h <= 0) return;
+
+        const theme = getThemeColors();
+
+        /* Compute 3D Camera Position & Orientation */
+        let camX, camY, camZ, yaw, pitch;
+        if (gameState.camMode === "overhead") {
+          camX = gameState.vehPos.x;
+          camY = 390;
+          camZ = gameState.vehPos.z - 120;
+          yaw = gameState.camYawOffset;
+          pitch = -1.22 + gameState.camPitchOffset * 0.25;
+        } else if (gameState.camMode === "orbit") {
+          const ang = gameState.time * 0.45 + gameState.camYawOffset;
+          const dist = 210;
+          camX = gameState.vehPos.x - Math.sin(ang) * dist;
+          camY = 115 + Math.sin(gameState.time * 0.8) * 12;
+          camZ = gameState.vehPos.z - Math.cos(ang) * dist;
+          yaw = Math.atan2(gameState.vehPos.x - camX, gameState.vehPos.z - camZ);
+          pitch = -0.44 + gameState.camPitchOffset * 0.25;
+        } else {
+          /* Chase Cam */
+          const followYaw = gameState.vehHeading + gameState.camYawOffset;
+          const dist = 148;
+          camX = gameState.vehPos.x - Math.sin(followYaw) * dist;
+          camY = 82 + gameState.vehPos.y * 0.4;
+          camZ = gameState.vehPos.z - Math.cos(followYaw) * dist;
+          yaw = Math.atan2(gameState.vehPos.x - camX, gameState.vehPos.z - camZ);
+          pitch = -0.36 + gameState.camPitchOffset * 0.3;
+        }
+
+        const cam = {
+          x: camX, y: camY, z: camZ,
+          yaw, pitch,
+          fov: Math.min(w, h) * 0.92,
+          cx: w * 0.5,
+          cy: h * 0.52
+        };
+
+        /* 1. Sky & Horizon Gradient */
+        const horizonY = Math.max(0, Math.min(h, cam.cy + Math.tan(cam.pitch) * cam.fov));
+        const skyGrad = gCtx.createLinearGradient(0, 0, 0, Math.max(10, horizonY));
+        skyGrad.addColorStop(0, theme.skyTop);
+        skyGrad.addColorStop(1, theme.skyBot);
+        gCtx.fillStyle = skyGrad;
+        gCtx.fillRect(0, 0, w, h);
+
+        /* Ground Plane */
+        const gndGrad = gCtx.createLinearGradient(0, horizonY, 0, h);
+        gndGrad.addColorStop(0, theme.groundA);
+        gndGrad.addColorStop(1, theme.groundB);
+        gCtx.fillStyle = gndGrad;
+        gCtx.fillRect(0, horizonY, w, Math.max(0, h - horizonY));
+
+        /* Subtle 3D Ground Grid Lines for strong depth perception */
+        gCtx.strokeStyle = "rgba(255,255,255,0.06)";
+        gCtx.lineWidth = 1;
+        for (let gx = -480; gx <= 480; gx += 80) {
+          const p1 = projectPoint(gx, 0, -360, cam);
+          const p2 = projectPoint(gx, 0, 360, cam);
+          if (p1 && p2) {
+            gCtx.beginPath();
+            gCtx.moveTo(p1.x, p1.y);
+            gCtx.lineTo(p2.x, p2.y);
+            gCtx.stroke();
+          }
+        }
+        for (let gz = -360; gz <= 360; gz += 80) {
+          const p1 = projectPoint(-480, 0, gz, cam);
+          const p2 = projectPoint(480, 0, gz, cam);
+          if (p1 && p2) {
+            gCtx.beginPath();
+            gCtx.moveTo(p1.x, p1.y);
+            gCtx.lineTo(p2.x, p2.y);
+            gCtx.stroke();
+          }
+        }
+
+        /* 2. Railway Track (Wooden Ties + Dual Steel/Neon Rails) */
+        const SEGMENTS = 72;
+        for (let i = 0; i < SEGMENTS; i++) {
+          const t1 = i / SEGMENTS;
+          const t2 = (i + 1) / SEGMENTS;
+          const p1 = getTrackPoint(t1);
+          const p2 = getTrackPoint(t2);
+          const ang = Math.atan2(p2.x - p1.x, p2.z - p1.z);
+          const nx = Math.cos(ang);
+          const nz = -Math.sin(ang);
+
+          /* Wooden Tie */
+          const tieA = projectPoint(p1.x - nx * 13, 0.5, p1.z - nz * 13, cam);
+          const tieB = projectPoint(p1.x + nx * 13, 0.5, p1.z + nz * 13, cam);
+          if (tieA && tieB) {
+            gCtx.strokeStyle = "#8d5524";
+            gCtx.lineWidth = Math.max(1.5, 4 * tieA.s);
+            gCtx.beginPath();
+            gCtx.moveTo(tieA.x, tieA.y);
+            gCtx.lineTo(tieB.x, tieB.y);
+            gCtx.stroke();
+          }
+
+          /* Left & Right Rails */
+          [-8, 8].forEach((offset) => {
+            const r1 = projectPoint(p1.x + nx * offset, 1.5, p1.z + nz * offset, cam);
+            const r2 = projectPoint(p2.x + nx * offset, 1.5, p2.z + nz * offset, cam);
+            if (r1 && r2) {
+              gCtx.strokeStyle = theme.accent2;
+              gCtx.lineWidth = Math.max(1.2, 2.2 * r1.s);
+              gCtx.beginPath();
+              gCtx.moveTo(r1.x, r1.y);
+              gCtx.lineTo(r2.x, r2.y);
+              gCtx.stroke();
+            }
+          });
+        }
+
+        /* 3. Build Z-Sorted 3D Render Queue */
+        const queue = [];
+
+        /* Clouds */
+        CLOUDS.forEach((cl) => {
+          const p = projectPoint(cl.x, cl.y, cl.z, cam);
+          if (!p) return;
+          queue.push({
+            depth: p.z,
+            draw: (ctx) => {
+              const r = cl.size * p.s;
+              ctx.fillStyle = "rgba(255,255,255,0.22)";
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+              ctx.arc(p.x + r * 0.7, p.y + r * 0.1, r * 0.75, 0, Math.PI * 2);
+              ctx.arc(p.x - r * 0.7, p.y + r * 0.12, r * 0.7, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          });
+        });
+
+        /* Tunnel / Bridge Arch at t = 0.50 */
+        const tunP = getTrackPoint(0.5);
+        const tunAng = getTrackTangent(0.5);
+        const tnx = Math.cos(tunAng), tnz = -Math.sin(tunAng);
+        addBox3D(queue, tunP.x - tnx * 22, 20, tunP.z - tnz * 22, 12, 40, 44, tunAng, "#a55eea", "#7158e2", "#574b90", cam);
+        addBox3D(queue, tunP.x + tnx * 22, 20, tunP.z + tnz * 22, 12, 40, 44, tunAng, "#a55eea", "#7158e2", "#574b90", cam);
+        addBox3D(queue, tunP.x, 44, tunP.z, 56, 10, 46, tunAng, theme.accent3, theme.accent, "#ff9f1c", cam);
+
+        /* 3 Named Train Stations */
+        STATIONS.forEach((st) => {
+          const sp = getTrackPoint(st.t);
+          const ang = getTrackTangent(st.t);
+          const sx = sp.x + Math.cos(ang) * 32;
+          const sz = sp.z - Math.sin(ang) * 32;
+          addBox3D(queue, sx, 4, sz, 26, 8, 52, ang, "#e2e8f0", "#94a3b8", "#64748b", cam);
+          addBox3D(queue, sx, 28, sz, 28, 6, 54, ang, st.color, "#1e293b", "#334155", cam);
+          const signP = projectPoint(sx, 42, sz, cam);
+          if (signP) {
+            queue.push({
+              depth: signP.z - 2,
+              draw: (ctx) => {
+                ctx.font = "800 " + Math.max(9, Math.min(14, 1400 / signP.z)) + "px Inter, sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillStyle = "#ffffff";
+                ctx.fillText("🚉 " + st.name, signP.x, signP.y);
+              }
+            });
+          }
+        });
+
+        /* Cute 3D Pine Trees */
+        TREES.forEach((tr) => {
+          addBox3D(queue, tr.x, 8 * tr.scale, tr.z, 6 * tr.scale, 16 * tr.scale, 6 * tr.scale, 0, "#6d4c41", "#5d4037", "#4e342e", cam);
+          addPyramid3D(queue, tr.x, 14 * tr.scale, tr.z, 15 * tr.scale, 26 * tr.scale, tr.hue, "#10ac84", cam);
+          addPyramid3D(queue, tr.x, 28 * tr.scale, tr.z, 11 * tr.scale, 20 * tr.scale, "#7bed9f", tr.hue, cam);
+        });
+
+        /* Collectible Golden Stars & Cargo Crates */
+        STARS.forEach((st) => {
+          const bobY = st.y + Math.sin(gameState.time * 4 + st.phase) * 4;
+          const p = projectPoint(st.x, bobY, st.z, cam);
+          if (!p) return;
+          if (st.isCrate) {
+            addBox3D(queue, st.x, bobY, st.z, 13, 13, 13, gameState.time * 1.8 + st.phase, "#ffd166", "#f59e0b", "#d97706", cam);
+          } else {
+            queue.push({
+              depth: p.z,
+              draw: (ctx) => {
+                const rad = Math.max(5, 13 * p.s);
+                drawStarShape(ctx, p.x, p.y, 5, rad, rad * 0.45, gameState.time * 2.4 + st.phase, "#ffd166");
+              }
+            });
+          }
+        });
+
+        /* Autopilot Waypoint Beam */
+        if (gameState.activeWaypoint) {
+          const wp = gameState.activeWaypoint;
+          const pVeh = projectPoint(gameState.vehPos.x, gameState.vehPos.y + 14, gameState.vehPos.z, cam);
+          const pTar = projectPoint(wp.x, wp.y, wp.z, cam);
+          if (pVeh && pTar) {
+            queue.push({
+              depth: Math.min(pVeh.z, pTar.z) - 1,
+              draw: (ctx) => {
+                ctx.save();
+                ctx.setLineDash([6, 6]);
+                ctx.strokeStyle = theme.accent2;
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(pVeh.x, pVeh.y);
+                ctx.lineTo(pTar.x, pTar.y);
+                ctx.stroke();
+                ctx.restore();
+              }
+            });
+          }
+        }
+
+        /* 4. Active 3D Vehicle */
+        const vx = gameState.vehPos.x;
+        const vy = gameState.vehPos.y;
+        const vz = gameState.vehPos.z;
+        const vh = gameState.vehHeading;
+
+        if (gameState.vehicle === "train") {
+          /* Locomotive */
+          addBox3D(queue, vx, 9, vz, 16, 12, 30, vh, theme.accent, "#c81d6d", "#9b1353", cam);
+          /* Cab */
+          const cabX = vx - Math.sin(vh) * 8;
+          const cabZ = vz - Math.cos(vh) * 8;
+          addBox3D(queue, cabX, 20, cabZ, 15, 12, 12, vh, theme.accent2, "#00a8c6", "#007ea7", cam);
+          /* Chimney */
+          const chX = vx + Math.sin(vh) * 9;
+          const chZ = vz + Math.cos(vh) * 9;
+          addBox3D(queue, chX, 21, chZ, 5, 12, 5, vh, "#ffd166", "#2f3542", "#1e272e", cam);
+
+          /* 2 Articulated Glowing Cargo Cars */
+          [0.024, 0.048].forEach((off, idx) => {
+            const ct = (gameState.trainT - off + 1) % 1;
+            const cp = getTrackPoint(ct);
+            const ca = getTrackTangent(ct);
+            const cCol = idx === 0 ? "#00f0ff" : "#ffd166";
+            addBox3D(queue, cp.x, 8, cp.z, 14, 10, 22, ca, cCol, "#1e293b", "#334155", cam);
+          });
+        } else if (gameState.vehicle === "truck") {
+          /* Turbo Monster Truck */
+          addBox3D(queue, vx, vy + 12, vz, 18, 9, 28, vh, "#ff5e5b", "#d63031", "#b71540", cam);
+          addBox3D(queue, vx, vy + 20, vz, 15, 8, 13, vh, "#ffd166", "#ff9f1c", "#e67e22", cam);
+          /* 4 Big Wheels */
+          const c = Math.cos(vh), s = Math.sin(vh);
+          [[-10, 10], [10, 10], [-10, -10], [10, -10]].forEach(([wxOff, wzOff]) => {
+            const px = vx + wxOff * c + wzOff * s;
+            const pz = vz - wxOff * s + wzOff * c;
+            addBox3D(queue, px, 6, pz, 6, 12, 12, vh, "#2f3542", "#1e272e", "#000000", cam);
+          });
+        } else {
+          /* Hover-Scout Rover */
+          addBox3D(queue, vx, vy + 8, vz, 24, 6, 26, vh, theme.accent2, "#0097e6", "#00a8ff", cam);
+          addBox3D(queue, vx, vy + 14, vz, 14, 7, 14, vh, "#ffffff", theme.accent, "#ff2e93", cam);
+        }
+
+        /* 5. Particles (Steam & Confetti) */
+        PARTICLES.forEach((pt) => {
+          const p = projectPoint(pt.x, pt.y, pt.z, cam);
+          if (!p) return;
+          queue.push({
+            depth: p.z,
+            draw: (ctx) => {
+              ctx.globalAlpha = Math.max(0, Math.min(1, pt.life));
+              ctx.fillStyle = pt.color;
+              const rad = Math.max(2, pt.size * p.s);
+              if (pt.kind === "steam") {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+                ctx.fill();
+              } else {
+                ctx.fillRect(p.x - rad * 0.5, p.y - rad * 0.5, rad, rad);
+              }
+              ctx.globalAlpha = 1;
+            }
+          });
+        });
+
+        /* Sort Painter's Queue (far to near) & Draw */
+        queue.sort((a, b) => b.depth - a.depth);
+        for (let i = 0; i < queue.length; i++) {
+          queue[i].draw(gCtx);
+        }
+
+        /* Update Telemetry HUD Readouts */
+        const hudSpd = document.getElementById("hudSpeed");
+        const hudStr = document.getElementById("hudStars");
+        const hudDst = document.getElementById("hudDist");
+        const hudFps = document.getElementById("hudFps");
+        if (hudSpd) hudSpd.textContent = Math.round(Math.abs(gameState.speed) * 0.8) + " km/h";
+        if (hudStr) hudStr.textContent = String(missionProgress.starsCollected);
+        if (hudDst) hudDst.textContent = Math.floor(missionProgress.distanceMeters) + "m";
+        if (hudFps) hudFps.textContent = gameState.fps + " FPS";
+      }
+
+      /* Render Mini Synth Visualizer */
+      function renderSynthViz() {
+        if (!vCtx || !vizCanvas) return;
+        const w = vizCanvas.width;
+        const h = vizCanvas.height;
+        if (w <= 0 || h <= 0) return;
+
+        vCtx.clearRect(0, 0, w, h);
+        const theme = getThemeColors();
+        const bars = synthState.vizEnergy.length;
+        const barW = (w - 12) / bars;
+
+        let freqData = null;
+        if (synthState.analyser) {
+          freqData = new Uint8Array(synthState.analyser.frequencyBinCount);
+          synthState.analyser.getByteFrequencyData(freqData);
+        }
+
+        for (let i = 0; i < bars; i++) {
+          synthState.vizEnergy[i] *= 0.91;
+          const audioVal = freqData ? (freqData[i % freqData.length] / 255) : 0;
+          const level = Math.max(0.08, Math.min(1, Math.max(synthState.vizEnergy[i], audioVal)));
+          const bh = level * (h - 12);
+          const x = 6 + i * barW;
+          const y = h - 6 - bh;
+          vCtx.fillStyle = i % 2 === 0 ? theme.accent : theme.accent2;
+          vCtx.fillRect(x, y, Math.max(3, barW - 3), bh);
+        }
+      }
+
+      /* Responsive Canvas Resize Handler */
+      function resizeCanvases() {
+        const wrap = document.getElementById("canvasWrap");
+        if (wrap && gameCanvas) {
+          const rect = wrap.getBoundingClientRect();
+          gameCanvas.width = Math.max(240, Math.floor(rect.width));
+          gameCanvas.height = Math.max(200, Math.floor(rect.height));
+        }
+        if (vizCanvas && vizCanvas.parentElement) {
+          const vr = vizCanvas.parentElement.getBoundingClientRect();
+          vizCanvas.width = Math.max(180, Math.floor(vr.width));
+          vizCanvas.height = Math.max(50, Math.floor(vr.height));
+        }
+      }
+
+      /* Main 60fps Loop */
+      let lastTs = 0;
+      function animate(ts) {
+        if (!lastTs) lastTs = ts;
+        const dt = Math.min(0.05, Math.max(0.001, (ts - lastTs) / 1000));
+        lastTs = ts;
+
+        gameState.frameCount++;
+        gameState.fpsAccum += dt;
+        if (gameState.fpsAccum >= 0.5) {
+          gameState.fps = Math.round(gameState.frameCount / gameState.fpsAccum);
+          gameState.frameCount = 0;
+          gameState.fpsAccum = 0;
+        }
+
+        updateGame(dt);
+        renderGame();
+        renderSynthViz();
+        requestAnimationFrame(animate);
+      }
+
+      /* =======================================================================
+         7. WIRE ALL UI CONTROLS, POSTURE RECONFIGURER, TABS & INPUTS
+         ======================================================================= */
+      function initUI() {
+        /* 1. 4-Posture Layout Reconfigurer */
+        const postureBtns = [
+          document.getElementById("btnPostureDesktop"),
+          document.getElementById("btnPostureMobile"),
+          document.getElementById("btnPostureFold"),
+          document.getElementById("btnPostureTablet")
+        ];
+        postureBtns.forEach((btn) => {
+          if (!btn) return;
+          btn.addEventListener("click", () => {
+            const p = btn.dataset.posture || "desktop";
+            document.documentElement.setAttribute("data-device", p);
+            postureBtns.forEach((b) => b && b.classList.toggle("active", b === btn));
+            safeStorageSet("hawkrail_posture", p);
+            setTimeout(resizeCanvases, 60);
+            setTimeout(resizeCanvases, 360);
+            showToast("📐 Layout Posture: " + p.toUpperCase());
+          });
+        });
+
+        /* 2. HawkChroma Multi-Theme Engine */
+        const themeSel = document.getElementById("selectTheme");
+        if (themeSel) {
+          const savedTheme = safeStorageGet("hawkrail_theme", "cyberpunk");
+          themeSel.value = savedTheme;
+          document.documentElement.setAttribute("data-theme", savedTheme);
+          themeSel.addEventListener("change", () => {
+            const val = themeSel.value;
+            document.documentElement.setAttribute("data-theme", val);
+            safeStorageSet("hawkrail_theme", val);
+            showToast("🎨 Theme switched to " + themeSel.options[themeSel.selectedIndex].text);
+          });
+        }
+
+        /* 3. Vehicle Switcher, Camera, Autopilot, Horn */
+        const btnTrain = document.getElementById("btnVehTrain");
+        const btnTruck = document.getElementById("btnVehTruck");
+        const btnRover = document.getElementById("btnVehRover");
+        if (btnTrain) btnTrain.addEventListener("click", () => setVehicle("train"));
+        if (btnTruck) btnTruck.addEventListener("click", () => setVehicle("truck"));
+        if (btnRover) btnRover.addEventListener("click", () => setVehicle("rover"));
+
+        const btnCam = document.getElementById("btnCamMode");
+        if (btnCam) btnCam.addEventListener("click", cycleCamera);
+
+        const btnAuto = document.getElementById("btnAutopilot");
+        if (btnAuto) btnAuto.addEventListener("click", toggleAutopilot);
+
+        const btnHorn = document.getElementById("btnHorn");
+        if (btnHorn) btnHorn.addEventListener("click", triggerHornBoost);
+
+        /* Throttle Slider */
+        const sliderThrottle = document.getElementById("sliderThrottle");
+        const valThrottle = document.getElementById("valThrottle");
+        if (sliderThrottle) {
+          sliderThrottle.addEventListener("input", () => {
+            const v = Number(sliderThrottle.value);
+            gameState.throttle = v / 100;
+            if (valThrottle) valThrottle.textContent = v + "%";
+          });
+        }
+
+        /* Touch D-Pad Hold Handlers */
+        function bindPad(id, keyName) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          const down = (e) => { e.preventDefault(); gameState.keys[keyName] = true; el.classList.add("pressed"); };
+          const up = () => { gameState.keys[keyName] = false; el.classList.remove("pressed"); };
+          el.addEventListener("pointerdown", down);
+          el.addEventListener("pointerup", up);
+          el.addEventListener("pointerleave", up);
+          el.addEventListener("pointercancel", up);
+        }
+        bindPad("padUp", "up");
+        bindPad("padDown", "down");
+        bindPad("padLeft", "left");
+        bindPad("padRight", "right");
+
+        /* Canvas Drag-to-Orbit Camera */
+        if (gameCanvas) {
+          let dragging = false, lastX = 0, lastY = 0;
+          gameCanvas.addEventListener("pointerdown", (e) => {
+            dragging = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+          });
+          window.addEventListener("pointermove", (e) => {
+            if (!dragging) return;
+            gameState.camYawOffset += (e.clientX - lastX) * 0.008;
+            gameState.camPitchOffset = Math.max(-0.8, Math.min(0.8, gameState.camPitchOffset + (e.clientY - lastY) * 0.006));
+            lastX = e.clientX;
+            lastY = e.clientY;
+          });
+          window.addEventListener("pointerup", () => { dragging = false; });
+        }
+
+        /* Studio Deck Tabs */
+        const tabs = [
+          { btn: "tabBtnSynth", panel: "panelSynth" },
+          { btn: "tabBtnMissions", panel: "panelMissions" },
+          { btn: "tabBtnCvtml", panel: "panelCvtml" }
+        ];
+        tabs.forEach((t) => {
+          const bEl = document.getElementById(t.btn);
+          if (!bEl) return;
+          bEl.addEventListener("click", () => {
+            tabs.forEach((other) => {
+              const ob = document.getElementById(other.btn);
+              const op = document.getElementById(other.panel);
+              const active = other.btn === t.btn;
+              if (ob) {
+                ob.classList.toggle("active", active);
+                ob.setAttribute("aria-selected", active ? "true" : "false");
+              }
+              if (op) op.classList.toggle("active", active);
+            });
+            setTimeout(resizeCanvases, 30);
+          });
+        });
+
+        /* Synth Controls */
+        const selectScale = document.getElementById("selectScale");
+        if (selectScale) {
+          selectScale.addEventListener("change", () => {
+            synthState.scale = selectScale.value;
+            buildSynthKeyboard();
+            playScaleKey(0, false);
+          });
+        }
+        const selectWave = document.getElementById("selectWave");
+        if (selectWave) {
+          selectWave.addEventListener("change", () => {
+            synthState.wave = selectWave.value;
+            playScaleKey(2, false);
+          });
+        }
+        const sliderCutoff = document.getElementById("sliderCutoff");
+        const valCutoff = document.getElementById("valCutoff");
+        if (sliderCutoff) {
+          sliderCutoff.addEventListener("input", () => {
+            synthState.cutoff = Number(sliderCutoff.value);
+            if (valCutoff) valCutoff.textContent = synthState.cutoff + " Hz";
+            if (synthState.filter) synthState.filter.frequency.value = synthState.cutoff;
+          });
+        }
+        const sliderVolume = document.getElementById("sliderVolume");
+        const valVolume = document.getElementById("valVolume");
+        if (sliderVolume) {
+          sliderVolume.addEventListener("input", () => {
+            synthState.volume = Number(sliderVolume.value) / 100;
+            if (valVolume) valVolume.textContent = sliderVolume.value + "%";
+            if (synthState.masterGain) synthState.masterGain.gain.value = synthState.volume * 0.4;
+          });
+        }
+        const btnGroove = document.getElementById("btnGrooveToggle");
+        if (btnGroove) btnGroove.addEventListener("click", toggleGroove);
+
+        const btnSynthHorn = document.getElementById("btnSynthHorn");
+        if (btnSynthHorn) btnSynthHorn.addEventListener("click", triggerHornBoost);
+
+        /* Mission Reset */
+        const btnResetMissions = document.getElementById("btnResetMissions");
+        if (btnResetMissions) btnResetMissions.addEventListener("click", resetMissions);
+
+        /* CVTML Controls */
+        const btnTranslate = document.getElementById("btnTranslateCvtml");
+        if (btnTranslate) btnTranslate.addEventListener("click", () => translateOarToCvtml(true));
+
+        const btnCopy = document.getElementById("btnCopyCvtml");
+        if (btnCopy) btnCopy.addEventListener("click", copyCvtml);
+
+        const btnBus = document.getElementById("btnBroadcastBus");
+        if (btnBus) btnBus.addEventListener("click", broadcastEcosystem);
+
+        const btnExpJson = document.getElementById("btnExportJson");
+        if (btnExpJson) {
+          btnExpJson.addEventListener("click", () => {
+            const outEl = document.getElementById("outputCvtml");
+            const data = {
+              app: "HawkRail 3D",
+              serial: SERIAL_ID,
+              credits: "Forefront Hawk (forefronthawk.com) & Gemini Aargon",
+              missions: missionProgress,
+              cvtml: outEl ? outEl.textContent : ""
+            };
+            downloadFile("hawkrail_mission_cvtml.json", JSON.stringify(data, null, 2), "application/json");
+          });
+        }
+
+        const btnExpMd = document.getElementById("btnExportMd");
+        if (btnExpMd) {
+          btnExpMd.addEventListener("click", () => {
+            const outEl = document.getElementById("outputCvtml");
+            const md =
+              "# HawkRail 3D Mission & CVTML Export\n" +
+              "- **Credits:** Engineered with Forefront Hawk (forefronthawk.com) & Gemini Aargon\n" +
+              "- **Serial:** `" + SERIAL_ID + "`\n" +
+              "- **Stars Collected:** " + missionProgress.starsCollected + "\n" +
+              "- **Distance Driven:** " + Math.floor(missionProgress.distanceMeters) + "m\n\n" +
+              "## CVTML Neon Output\n```xml\n" + (outEl ? outEl.textContent : "") + "\n```\n";
+            downloadFile("hawkrail_mission_cvtml.md", md, "text/markdown");
+          });
+        }
+
+        /* Keyboard Shortcuts (Ignored while typing in textarea/input) */
+        window.addEventListener("keydown", (e) => {
+          const tag = document.activeElement ? document.activeElement.tagName : "";
+          if (tag === "TEXTAREA" || tag === "INPUT" || tag === "SELECT") return;
+
+          if (e.code === "ArrowUp" || e.code === "KeyW") { e.preventDefault(); gameState.keys.up = true; }
+          if (e.code === "ArrowDown" || e.code === "KeyS") { e.preventDefault(); gameState.keys.down = true; }
+          if (e.code === "ArrowLeft" || e.code === "KeyA") { e.preventDefault(); gameState.keys.left = true; }
+          if (e.code === "ArrowRight" || e.code === "KeyD") { e.preventDefault(); gameState.keys.right = true; }
+          if (e.code === "Space") { e.preventDefault(); triggerHornBoost(); }
+          if (e.code === "Tab") {
+            e.preventDefault();
+            const order = ["train", "truck", "rover"];
+            setVehicle(order[(order.indexOf(gameState.vehicle) + 1) % order.length]);
+          }
+          if (e.key >= "1" && e.key <= "8") {
+            playScaleKey(Number(e.key) - 1, true);
+          }
+        });
+
+        window.addEventListener("keyup", (e) => {
+          if (e.code === "ArrowUp" || e.code === "KeyW") gameState.keys.up = false;
+          if (e.code === "ArrowDown" || e.code === "KeyS") gameState.keys.down = false;
+          if (e.code === "ArrowLeft" || e.code === "KeyA") gameState.keys.left = false;
+          if (e.code === "ArrowRight" || e.code === "KeyD") gameState.keys.right = false;
+        });
+
+        window.addEventListener("resize", resizeCanvases);
+      }
+
+      /* Start Everything Cleanly on Window Load */
+      window.onload = function () {
+        initUI();
+        buildSynthKeyboard();
+        updateMissions();
+        translateOarToCvtml(false);
+        resizeCanvases();
+        requestAnimationFrame(animate);
+        showToast("🚂 Welcome to HawkRail 3D! Tap keys 1-8 or drive to start.");
+      };
+    })();
+  </script>
+</body>
+</html>
